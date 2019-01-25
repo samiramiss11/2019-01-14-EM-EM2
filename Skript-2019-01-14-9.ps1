@@ -2,8 +2,8 @@
 
 Get-EventLog -Newest 5 -LogName "Application"
 
-#change the computer name and username
-Get-EventLog -LogName Security -ComputerName ComputerName -InstanceId 4624 | ?{$_.Message -like "*UserName*"}
+#get evenlog from my PC the (i didnt check this command my copmputer name remain -ComputerName ComputerName in this command
+Get-EventLog -LogName Security -ComputerName ComputerNamesamira -InstanceId 4624 | ?{$_.Message -like "*UserName*"}
 
 #Counting login attemps with powershell for FailureAudit and SuccessAudit
 Get-EventLog -LogName Security | Group-Object -Property -EntryType SuccessAudit
@@ -15,7 +15,7 @@ get-winevent -FilterHashtable @{Logname='Security';ID=4624}  -MaxEvents 10
 
 
 #Make a list of servers to see if there is an event ID in past 24 hours, save result on a file.
-Get-Eventlog -LogName System -EntryType Error -after (Get-Date).AddHours(-24) -ID 4624 -ComputerNamesamira  $server
+Get-Eventlog -LogName System -EntryType Error -after (Get-Date).AddHours(-24) -ID 4624 -ComputerName  $server
 $results = Get-Eventlog ....
 if($results){".\script.ps1 *> C:\Temp\Logsinfo.txt"}
 
