@@ -1,32 +1,28 @@
 
 
-Get-EventLog -Newest 5 -LogName "Application"
-
-#get evenlog from my PC the (i didnt check this command my copmputer name remain -ComputerName ComputerName in this command
-Get-EventLog -LogName Security -ComputerName ComputerNamesamira -InstanceId 4624 | ?{$_.Message -like "*UserName*"}
-
-#Counting login attemps with powershell for FailureAudit and SuccessAudit
-Get-EventLog -LogName Security | Group-Object -Property -EntryType SuccessAudit
 
 
 
-# Get the last 5 entry of an event id 4624
-get-winevent -FilterHashtable @{Logname='Security';ID=4624}  -MaxEvents 10
+$SuccessfulLogin = Get-EventLog -LogName Security | Where-Object {$_.InstanceId -eq 4624 }
 
+$SuccessfulLoginCount = $SuccessfulLogin.Count
+$SuccessfulLoginInteractiveCount = ($SuccessfulLogin | Where-Object {$_.Message -like "*Inloggningstyp:		2*"}).Count #inloggningstyp 2 är interaktiv login, 3 är nätverk
+$SuccessfulLoginNetworkCount = ($SuccessfulLogin | Where-Object {$_.Message -like "*Inloggningstyp:		3*"}).Count
+$FailedLoginCoint = (Get-EventLog -LogName Security | Where-Object {$_.InstanceId -eq 4625}).Count
+$UnlockLoginCoint = (Get-EventLog -LogName Security | Where-Object {$_.InstanceId -eq 4801}).Count
+#echo $SuccessfulLogin | Select-Object -First 5 | Format-List
+#echo $SuccessfulLoginInteractive | Format-List
+write-host "Successful logins:  $SuccessfulLoginCount"
+write-host "Successful interactive logins: $SuccessfulLoginInteractiveCount"
+write-host "Successful network logins: $SucessfulLoginNetworkCount"
+write-host -ForegroundColor red "Failed logins: $FailedLoginCoint"
+write-host "Workstation unlocks: $UnlockLoginCoint"
 
-#Make a list of servers to see if there is an event ID in past 24 hours, save result on a file.
-Get-Eventlog -LogName System -EntryType Error -after (Get-Date).AddHours(-24) -ID 4624 -ComputerName  $server
-$results = Get-Eventlog ....
-if($results){".\script.ps1 *> C:\Temp\Logsinfo.txt"}
-
-
-#get the 10 newest logs for each ID
-$SecLog=Get-WinEvent -FilterHashTable @{Logname='Security';ID=4624} -Max 10
-
-get-eventlog security -newest 100 |
-  where \{$_.entrytype -eq `
-    "SuccessAudit" "FailureAudit"\}
-
+echo "Successful logins:  $SuccessfulLoginCount" >> "C:\Temp\Logins.txt"
+echo "Successful interactive logins: $SuccessfulLoginInteractiveCount" >> "C:\Temp\Logins.txt"
+echo "Successful network logins: $SuccessfulLoginNetworkCount" >> "C:\Temp\Logins.txt"
+echo "Failed logins: $FailedLoginCoint" >> "C:\Temp\Logins.txt"
+echo "Workstation unlocks: $UnlockLoginCoint" >> "C:\Temp\Logins.txt"
 
 
 
